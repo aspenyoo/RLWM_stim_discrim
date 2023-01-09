@@ -60,59 +60,60 @@ writetable(tbl,sprintf('dataforanova_%s.csv',exptype));
 
 
 %% test phase: descriptive statistics
-% is test phase perfomrance better than chance?
+% is test phase performance better than chance?
 % is there a tortoise hare effect for each condition?
 
 clear all
 
 load('experimentalsettings.mat')
 exptype = 'RPP';
+nBlocks = 12;
          
 condVec = nan(nSubjs.(exptype),nBlocks); %
+traincorrMat1 = cell(1,nConds); %nan(nSubjs,nTimes);
+testcorrMat1 = cell(1,nConds);
 traincorrMat = cell(1,nConds); %nan(nSubjs,nTimes);
 testcorrMat = cell(1,nConds);
 
 for isubj = 1:nSubjs.(exptype)
     subjid = subjidVec.(exptype)(isubj);
-    
-    load(sprintf('haley/rlwm_haley_task_and_data/GroupedExpeData/WMO_ID%d.mat',subjid))
-    testcorrVec = dataTest.Cor;
-    testcorrVec(testcorrVec==-1) = 0; % change nonresponses to nan
+
+    % ======= NEW CODE ========
+    % load data
+    load(sprintf('data/%s/fittingdata_subjid%d.mat%',exptype,subjid))
+    testcorrVec = double(test_fullseq_corrresp == test_fullseq_subjresp);
     
     [traincorrmat, testcorrmat] = deal(cell(1,nConds));
-    for iblock = 2:(nBlocks-1)
+    for iblock = 1:nBlocks
         
         % condition information
-        nStims = matrice.blocks(iblock);
-        condition = matrice.condition(iblock);
+        nStims = nStimsVec(iblock);
+        condition = condVec(iblock);
         icond = find(conditionMat(1,:)==nStims & conditionMat(2,:)==condition);
-        condVec(isubj,iblock) = icond;
         
         % training accuracy info
-        iscorrVec = dataT{iblock}.Cor; % correct or not
+        iscorrVec = corrCell{iblock}; % correct or not
         
         % testing accuracy info
-        idx = (matricetest.stimBlockSeq == iblock); % which trials are in current block
-        
+        idx = (test_fullseq_learnblocknum == iblock); % which trials are in current block
         
         for istim = 1:nStims
             % training
-            corrvec = iscorrVec(matrice.stSeqs{iblock} == istim); % all relevant stim times
+            corrvec = iscorrVec(stimvaluesCell{iblock} == istim); % all relevant stim times
             traincorrmat{icond} = [traincorrmat{icond}; corrvec(end-2:end)];
-        
+            
             % testing
-            idxx = idx & (matricetest.stimNumSeq==istim);
-            testcorrmat{icond} = [testcorrmat{icond}; testcorrVec(idxx)];
+            idxx = idx & (test_fullseq_stimvalues == istim);
+            testcorrmat{icond} = [testcorrmat{icond}; testcorrVec(idxx)'];
         end
     end
     
     for icond = 1:nConds
         % training
-        idx  = (traincorrmat{icond} ~= -1);
-        traincorrMat{icond}(isubj,:) = nanmean(traincorrmat{icond}(idx));
+        traincorrMat{icond}(isubj,:) = nanmean(traincorrmat{icond}(traincorrmat{icond} ~= -1));
         
         % testing
-        testcorrMat{icond}(isubj,:) = nanmean(testcorrmat{icond}(idx));
+        testcorrMat{icond}(isubj,:) = nanmean(testcorrmat{icond}(testcorrmat{icond} ~= -1));
     end
 end
 
@@ -127,10 +128,6 @@ testtraindiff = cellfun(@minus,traincorrMat,testcorrMat,'UniformOutput',false);
 tortoisehare = cell2mat(testtraindiff);
 tortoisehare = tortoisehare(:,1:3) - tortoisehare(:,4:6);
 
-% % torroise and hare
-% [h,p,ci,stats] = ttest(tortoisehare)
-
-
 conditionmat = repmat(1:3,nSubjs.(exptype),1);
 % setsizemat = repmat(conditionMat(1,:),nSubjs,1);
 subjidmat = repmat([1:nSubjs.(exptype)]',1,nConds/2);
@@ -139,7 +136,17 @@ tbl = table(tortoisehare(:), conditionmat(:),subjidmat(:),'VariableNames',{'TH',
 % write table to csv for R
 writetable(tbl,'dataforanova_tortoisehare.csv');
 
+% anova can be run in "TORTOISE AND HARE section" of the file "anova.R"
 
+
+%% 
+
+for icond = 1:6
+    
+    sum(traincorrMat{icond} ~= traincorrMat{icond})
+%     sum(testcorrMat{icond} ~= testcorrMat1{icond})
+    
+end
 %% ================================================================
 %                           FIT MODELS
 %  ================================================================

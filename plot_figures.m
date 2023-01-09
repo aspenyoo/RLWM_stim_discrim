@@ -215,7 +215,7 @@ clear all
 
 % EXPERIMENT NAME
 % exptype = 'Mturk';  % experiment 1
-exptype = 'RPP';    % experiment 2
+% exptype = 'RPP';    % experiment 2
 
 % % EXPERIMENT 1&2 MODELS (Fig 2, 4)
 % model = 'RL3WM_pers_0';             % RL learning rate
@@ -226,9 +226,10 @@ exptype = 'RPP';    % experiment 2
 % model = 'ns2_pers_0';               % RL-WM weight
 
 % % ADDITIONAL EXPERIMENT 2 MODELS (Fig 5(top))
+exptype = 'RPP';
 % model = 'RL3WMi_pers_0';            % RL learning rate with interaction
 % model = 'RLWMi_dn_pers_sub_0';      % RL decision noise with interaction
-% model = 'RL3WMi_all_pers_0';        % RL learning rate with interaction (fitted on learn+test data)
+model = 'RL3WMi_all_pers_0';        % RL learning rate with interaction (fitted on learn+test data)
 % model = 'RLWMi_dn_all_pers_sub_0';  % RL decision noise with interaction (fitted on learn+test data)
 
 % % SUPPLEMENTARY MODELS (Fig 20)
@@ -243,9 +244,9 @@ exptype = 'RPP';    % experiment 2
 % model = 'superfree_dnRLWM_pers_0';      % Superfree model
 
 % % SUPPLEMENTARY MODELS (Fig 24)
-exptype = 'RPP';    % experiment 2 only
+% exptype = 'RPP';    % experiment 2 only
 % model = 'RL3WMi_i_all_pers_0';
-model = 'RLWMi_dn_i_all_pers_sub_0';
+% model = 'RLWMi_dn_i_all_pers_sub_0';
 
 % ==========  SIMULATE DATA ===========
 
