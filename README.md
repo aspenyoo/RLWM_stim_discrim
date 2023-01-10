@@ -13,4 +13,4 @@ Here is a brief description of the folders. Each folder has a README file to fur
 
 Human and simulated data, as well as fits, can be found at https://osf.io/f4hst/.
 
-To create Figures 15-17, you will need an installation of [SPM](https://www.fil.ion.ucl.ac.uk/spm/). If you have this, please add it's path at the top of plot_figures in the designated space. If you do not, this code will be skipped.
+To create Figures 15-17, you will need an installation of [SPM](https://www.fil.ion.ucl.ac.uk/spm/). If you have this, please add its path at the top of plot_figures in the designated space. If you do not, this code will be skipped.
