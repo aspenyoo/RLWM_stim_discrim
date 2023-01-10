@@ -1,3 +1,17 @@
+%% setup
+addpath('helper_functions')
+addpath('models')
+spm_path = '/Users/hkeglovi/Documents/MATLAB/spm12/'; % add your path here (example: '/Users/hkeglovi/Documents/MATLAB/spm12/') OR leave as blank
+if ~strcmp(spm_path, '')
+    addpath(spm_path);
+    % and a little check 
+    if ~exist('spm_BMS','file')
+        warning('you have added an SPM path, but matlab cannot find spm_BMS which is needed for plotting')
+        warning('please check your path')
+    end
+end
+
+
 %% Figure 1C & 3A(middle): PC as a function of trial iteration and condition (across participants)
 
 clear all
@@ -775,6 +789,10 @@ end
 
 %% FIG 15-16: MODEL RECOVERY PLOT
 
+% only run this if you have set up spm
+
+if exist('spm_BMS','file')
+
 clear all
 
 load('experimentalsettings.mat')
@@ -890,8 +908,11 @@ title('exp_r')
 colorbar
 defaultplot
 
+end % create if can find spm_BMS
+
 %% FIGURE 17: FOLLOW UP MODEL RECOVERY PLOT FOR RL3WM VS RL3WM3 
 
+if exist('spm_BMS','file')
 clear all
 
 load('experimentalsettings.mat')
@@ -979,6 +1000,7 @@ title('exp_r')
 colorbar
 defaultplot
 
+end % create if can find spm_BMS
 
 %% FIG 18-19: COMPARE PARAMETERS ACROSS PARTICIPANTS AND EXPERIMENTS
 
@@ -1013,7 +1035,7 @@ nparams = length(m_rpp);
 m = floor(sqrt(nparams));
 n = ceil(nparams/m);
 
-figure
+figure;
 for iparam = 1:nparams
     
     % significance test
@@ -1109,25 +1131,28 @@ Delta_BIC = bsxfun(@minus,BIC,BIC(imodelref,:));
 med_AICc = median(Delta_AICc,2);
 med_BIC = median(Delta_BIC,2);
 
+figure;
+% get current fig number
+ngcf = get(gcf,'Number');
 for imodel = 1:nModels
     
     daicc = Delta_AICc(imodel,:);
     dbic = Delta_BIC(imodel,:);
     
-    figure(1);
+    figure(ngcf);
     CI_AICc = sort(median(daicc(randi(nSubjs.(exptype),nSubjs.(exptype),1000))));
     CI_AICc = CI_AICc([25 975]);
     fill([0.55 1.45 1.45 0.55]+imodel-1,CI_AICc([1 1 2 2]),0.7*ones(1,3)); hold on;
     plot([0.55 1.45]+imodel-1,[med_AICc(imodel) med_AICc(imodel)],'k-')
     
-    figure(2);
+    figure(ngcf+1);
     CI_BIC = sort(median(dbic(randi(nSubjs.(exptype),nSubjs.(exptype),1000))));
     CI_BIC = CI_BIC([25 975]);
     fill([0.55 1.45 1.45 0.55]+imodel-1,CI_BIC([1 1 2 2]),0.7*ones(1,3)); hold on;
     plot([0.55 1.45]+imodel-1,[med_BIC(imodel) med_BIC(imodel)],'k-')
 end
 
-figure(1);
+figure(ngcf);
 violinplot(Delta_AICc');
 plot([0 nModels+0.5],[0 0],'k-')
 set(gca,'Xtick',1:nModels,'XTickLabel',modelnameVec)
@@ -1135,7 +1160,7 @@ ylabel(sprintf('AICc(model) - AICc(%s)',modelnameVec{imodelref}))
 title('AICc')
 defaultplot
 
-figure(2);
+figure(ngcf+1);
 violinplot(Delta_BIC');
 plot([0 nModels+0.5],[0 0],'k-')
 set(gca,'Xtick',1:nModels,'XTickLabel',modelnameVec)

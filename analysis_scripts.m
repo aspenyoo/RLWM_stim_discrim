@@ -1,7 +1,9 @@
 %% ================================================================
 %                     BEHAVIORAL ANALYSES
 %  ================================================================
-
+% setup
+addpath('helper_functions')
+addpath('models')
 %% MAKE CSV FOR ANOVA (which is done in R)
 
 clear all
