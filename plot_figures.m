@@ -1,7 +1,7 @@
 %% setup
 addpath('helper_functions')
 addpath('models')
-spm_path = '/Users/hkeglovi/Documents/MATLAB/spm12/'; % add your path here (example: '/Users/hkeglovi/Documents/MATLAB/spm12/') OR leave as blank
+spm_path = ''; % add your path here (example: '/Users/hkeglovi/Documents/MATLAB/spm12/') OR leave as blank
 if ~strcmp(spm_path, '')
     addpath(spm_path);
     % and a little check 
