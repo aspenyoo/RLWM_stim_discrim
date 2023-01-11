@@ -446,6 +446,7 @@ nsimSubjs = 50;
 load('experimentalsettings.mat')
 % exptypeCell = {'RPP','Mturk'};
 exptypeCell = {'RPP'};
+genfromreal_flag = 1;
 
 modelVec = {'RL3WMi_pers_0','RLWMi_dn_pers_sub_0'};
 % modelVec = {'RL3WM_pers_0','Decay3_pers_0','RLWM_dn_pers_sub_0','RLWM_CA_pers_0','RLWM_dnwm_pers_sub_0','ns2_pers_0'};
@@ -486,11 +487,7 @@ for imodel = 1:nModels
     if (genfromreal_flag)
         nSubjs = size(xbestMat,1);
         if (nSubjs < nsimSubjs) % if there aren't enough "real" parameters, simulate fake ones
-            nremainingsubjs = nsimSubjs - nSubjs;
-            
-            for irsubj = 1:nremainingsubjs
-                
-            end
+            error('not enough real subjects')
         else
             xbestMat = xbestMat(randperm(nSubjs),:);
         end
