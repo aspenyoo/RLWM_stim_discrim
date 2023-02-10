@@ -4,6 +4,7 @@
 % setup
 addpath('helper_functions')
 addpath('models')
+
 %% MAKE CSV FOR ANOVA (which is done in R)
 
 clear all
@@ -446,13 +447,18 @@ clear all
 
 nsimSubjs = 50;
 load('experimentalsettings.mat')
-% exptypeCell = {'RPP','Mturk'};
-exptypeCell = {'RPP'};
+exptypeCell = {'RPP','Mturk'};
+% exptypeCell = {'RPP'};
 genfromreal_flag = 1;
 
-modelVec = {'RL3WMi_pers_0','RLWMi_dn_pers_sub_0'};
-% modelVec = {'RL3WM_pers_0','Decay3_pers_0','RLWM_dn_pers_sub_0','RLWM_CA_pers_0','RLWM_dnwm_pers_sub_0','ns2_pers_0'};
+modelVec = {'RL3WM_pers_0','Decay3_pers_0','RLWM_dn_pers_sub_0','RLWM_CA_pers_0','RLWM_dnwm_pers_sub_0','ns2_pers_0'};
+% modelVec = {'RL3WMi_pers_0','RLWMi_dn_pers_sub_0'};
 nModels = length(modelVec);
+
+if ~exist('data/simdata', 'dir')
+    mkdir('data/simdata')
+end
+
 for imodel = 1:nModels
     model = modelVec{imodel}
     
@@ -526,7 +532,7 @@ for imodel = 1:nModels
                 end
                 x(1:idx_logit) = exp(x(1:idx_logit))./(1+exp(x(1:idx_logit)));
             end
-            
+        else
             x = xbestMat(isubj,:);
         end
         
@@ -555,7 +561,7 @@ for imodel = 1:nModels
     end
 end
 
-%% SIMULATED MODEL FIT (NOT SUPERFREE MODEL)
+%% FIT MODEL ON SIMULATED DATA (NOT SUPERFREE MODEL)
 
 clear all
 nsimSubjs = 50; % how many simulated participants we are fitting
