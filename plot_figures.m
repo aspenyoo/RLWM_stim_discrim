@@ -161,7 +161,7 @@ defaultplot
 
 
 
-%% Figure 3B(middle,right): IDENITY PLOT: TRAIN AGAINST TEST
+%% Figure 3B(middle): IDENITY PLOT: TRAIN AGAINST TEST
 
 clear all
 
@@ -219,6 +219,74 @@ xlabel('proportion correct learn')
 ylabel('proportion correct test')
 defaultplot
 
+%% FIGURE 3B, bottom: TORTOISE AND HARE EFFECT
+
+clear all
+
+load('experimentalsettings.mat')
+exptype = 'RPP';
+nBlocks = 12;
+         
+condVec = nan(nSubjs.(exptype),nBlocks); %
+traincorrMat = cell(1,nConds); %nan(nSubjs,nTimes);
+testcorrMat = cell(1,nConds);
+
+for isubj = 1:nSubjs.(exptype)
+    subjid = subjidVec.(exptype)(isubj);
+    
+    % ----- load data ------
+    load(sprintf('data/%s/fittingdata_subjid%d.mat',exptype,subjid))
+    
+    [traincorrmat, testcorrmat] = deal(cell(1,nConds));
+    for iblock = 1:nBlocks
+        
+        % condition information
+        nStims = nStimsVec(iblock);
+        condition = condVec(iblock);
+        icond = find(conditionMat(1,:)==nStims & conditionMat(2,:)==condition);
+        
+        % vector or accuracy info for current block
+        learncorrVec = corrCell{iblock};
+        testcorrVec = test_corrrespCell{iblock} == test_subjrespCell{iblock};
+        
+        for istim = 1:nStims
+            % training
+            corrvec = learncorrVec(stimvaluesCell{iblock} == istim); % all relevant stim times
+            traincorrmat{icond} = [traincorrmat{icond}; corrvec(end-2:end)];
+        
+            % testing
+            idx = test_stimvaluesCell{iblock} == istim;
+            testcorrmat{icond} = [testcorrmat{icond}; testcorrVec(idx)];
+        end
+    end
+    
+    for icond = 1:nConds
+        % training
+        idx = traincorrmat{icond} ~= -1;
+        traincorrMat{icond}(isubj,:) = nanmean(traincorrmat{icond}(idx));
+        
+        % testing
+        idx = testcorrmat{icond} ~= -1;
+        testcorrMat{icond}(isubj,:) = nanmean(testcorrmat{icond}(idx));
+    end
+end
+
+testtraindiff = cellfun(@minus,traincorrMat,testcorrMat,'UniformOutput',false);
+m = cellfun(@mean,testtraindiff,'UniformOutput',true);
+sem = cellfun(@(x) std(x)/sqrt(length(x)),testtraindiff,'UniformOutput',true);
+
+% plot figure
+figure;
+for icond = 1:nConds/2
+    errorbar([1 2],m([icond icond+3]),sem([icond icond+3]),'Color',colorMat(icond,:),'CapSize',12)
+    hold on
+end
+set(gca,'XTick',[1 2],'XTickLabel',[3 6])
+xlim([0.8 2.2])
+ylim([0 0.5])
+defaultplot
+xlabel('set size')
+ylabel('PC(train) - PC(test)')
 
 %% FIG 2, 4, 5(top): LEARNING PHASE MODEL VALIDATION
 % Supplementary figure: Fig 20, 23, 24
