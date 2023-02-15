@@ -1,8 +1,12 @@
-%% setup
-addpath('helper_functions')
-addpath('models')
-spm_path = ''; % add your path here (example: '/Users/hkeglovi/Documents/MATLAB/spm12/') OR leave as blank
-if ~strcmp(spm_path, '')
+%% Setup
+% adding relevant paths, checking that computer has SPM
+
+addpath(genpath(pwd))
+spm_path = which('spm'); % add your path here (example: '/Users/me/Documents/MATLAB/spm12/') OR leave as blank
+if isempty(spm_path)
+    warning('MATLAB cannot find SPM, which is required for some model comparison analyses.')
+    warning('Please read README.md for where to download SPM.')
+else
     addpath(spm_path);
     % and a little check 
     if ~exist('spm_BMS','file')
@@ -47,7 +51,6 @@ for isubj = 1:nSubjs.(exptype) % for each participant
     end
     
     for icond = 1:nConds % average across all stimuli in each condition
-        %         corrMat{icond}(corrMat{icond} == -1) = 0;
         subjcorrMat{icond}(isubj,:) = nanmean(corrMat{icond});
     end
 end
@@ -157,8 +160,6 @@ end
 ylabel('tanh(beta)')
 xlim([0.5 nPreds+0.5])
 defaultplot
-
-
 
 
 %% Figure 3B(middle): IDENITY PLOT: TRAIN AGAINST TEST
@@ -289,7 +290,7 @@ xlabel('set size')
 ylabel('PC(train) - PC(test)')
 
 %% FIG 2, 4, 5(top): LEARNING PHASE MODEL VALIDATION
-% Supplementary figure: Fig 20, 23, 24
+% Supplementary figure: Fig 22, 25, 26
 
 clear all
 
@@ -648,7 +649,7 @@ title(model)
 
 
 %% FIGURE 2, 4: MODEL COMPARISON
-% Supplementary Figure 20, 23, 24
+% Supplementary Figure 22, 25, 26
 
 clear all
 load('experimentalsettings.mat')
@@ -786,7 +787,62 @@ end
 %% =================================================================
 %                  SUPPLEMENTARY FIGURES
 % ==================================================================
-%% FIG 7-14: PARAMETER RECOVERY PLOT
+
+%% FIG 6: REACTION TIME PLOT
+
+clear all
+
+load('experimentalsettings.mat')
+exptypeVec = {'Mturk','RPP'};
+nExps = length(exptypeVec);
+setsizeVec = [3 6];
+nSetSizes = length(setsizeVec);
+nConds = 3;
+
+figure;
+for iexp = 1:nExps
+    exptype = exptypeVec{iexp};
+    
+    df = nan(nSubjs.(exptype),nConds,nSetSizes);
+    for isubj = 1:nSubjs.(exptype)
+        subjid = subjidVec.(exptype)(isubj);
+        load(sprintf('data/%s/fittingdata_subjid%d.mat',exptype,subjid))
+        
+        for icond = 1:nConds
+            for ins = 1:nSetSizes
+                nStims = setsizeVec(ins);
+                
+                idx_block = find((condVec == icond) & (nStimsVec == nStims));
+                
+                rtvec = [];
+                for iblock = idx_block
+                    corr = corrCell{iblock} == 1;
+                    rtvec = [rtvec rtCell{iblock}(corr)];
+                end
+                
+                df(isubj,icond,ins) = mean(rtvec);
+            end
+        end
+    end
+        
+    subplot(1,2,iexp); hold on;
+    b = bar(squeeze(mean(df)),'FaceColor','flat','EdgeColor','none');
+    icolor = 1;
+    for ins = 1:nSetSizes
+        for icond = 1:nConds
+            b(ins).CData(icond,:) = colorMat(icolor,:);
+            icolor = icolor+1;
+        end
+    end
+    scatter(repmat((1:3)-.15,nSubjs.(exptype),1),df(:,:,1),'k','MarkerFaceColor','k')
+    scatter(repmat((1:3)+.15,nSubjs.(exptype),1),df(:,:,2),'k','MarkerFaceColor','k')
+    defaultplot
+    ylim([0 1.2])
+    set(gca,'XTick',1:3,'XtickLabel',{'Variants','Standard','Text'})
+    title(sprintf('Experiment %d',iexp))
+end
+
+%% FIG 9-16: PARAMETER RECOVERY PLOT
 
 clear all
 
@@ -855,7 +911,7 @@ for imodel = 1:nModels
     
 end
 
-%% FIG 15-16: MODEL RECOVERY PLOT
+%% FIG 17-18: MODEL RECOVERY PLOT
 
 % only run this if you have set up spm
 
@@ -978,7 +1034,7 @@ defaultplot
 
 end % create if can find spm_BMS
 
-%% FIGURE 17: FOLLOW UP MODEL RECOVERY PLOT FOR RL3WM VS RL3WM3 
+%% FIGURE 19: FOLLOW UP MODEL RECOVERY PLOT FOR RL3WM VS RL3WM3 
 
 if exist('spm_BMS','file')
 clear all
@@ -1070,7 +1126,7 @@ defaultplot
 
 end % create if can find spm_BMS
 
-%% FIG 18-19: COMPARE PARAMETERS ACROSS PARTICIPANTS AND EXPERIMENTS
+%% FIG 20-21: COMPARE PARAMETERS ACROSS PARTICIPANTS AND EXPERIMENTS
 
 clear all
 
@@ -1133,7 +1189,7 @@ for iparam = 1:nparams
 end
 
 
-%% FIG 21: FACTORIAL MODEL COMPARISON
+%% FIG 23: FACTORIAL MODEL COMPARISON
 % of main six models with/without perseveration and/or alpha-
 
 clear all
@@ -1236,7 +1292,7 @@ ylabel(sprintf('BIC(model) - BIC(%s)',modelnameVec{imodelref}))
 title('BIC')
 defaultplot
 
-%% FIG 22: FACTORIAL MODEL COMPARISON
+%% FIG 24: FACTORIAL MODEL COMPARISON
 % of main six models with/without full perseveration
 
 clear all
