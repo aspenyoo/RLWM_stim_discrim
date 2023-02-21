@@ -1,3 +1,32 @@
+%% SOME INFO BEFORE RUNNING
+
+% I apologize ahead of time for the horrible naming conventions.
+
+% We refer to the experiments by the subject pool. Thus, Experiment 1 is
+% referred to as 'Mturk', and Experiment 2 as 'RPP' throughout the code.
+
+% Modeling naming conventions are even worse. They are not standardized, 
+% not intuitive, and do not match the names found in the manuscript. 
+% Here is list a of the model names with their corresponding "names" 
+% in the code: 
+
+% ===== SIX MAIN MODELS ======
+% RL learning rate          - RL3WM_pers_0
+% RL credit assignment      - RLWM_CA_pers_0
+% RL decision confusion     - RLWM_dn_pers_sub_0
+% WM decay                  - Decay3_pers_0
+% WM decision confusion     - RLWM_dnwm_pers_sub_0
+% RL WM weight              - ns2_pers_0
+
+% ===== MODELS THAT WERE ALSO FIT ON TEST PHASE DATA (exp 2) =====
+
+
+% ==== ADDITIONAL MODELS ====
+% RL learning rate +        - RL3WM3_pers_0
+%           WM decay
+% superfree                 - superfree_dnRLWM_pers_0
+
+
 %% Setup
 % adding relevant paths, checking that computer has SPM
 
@@ -75,7 +104,7 @@ defaultplot % changing various default plotting aesthetics
 
 clear all
 load('experimentalsettings.mat')
-exptype = 'RPP'; % 'Mturk' or 'RPP'
+exptype = 'RPP'; % 'Mturk' (exp 1) or 'RPP' (exp 2)
 
 dev = nan(nSubjs.(exptype),3);
 nTrialsVec = nan(nSubjs.(exptype),1);
@@ -295,6 +324,7 @@ ylabel('PC(train) - PC(test)')
 clear all
 
 % ======= TOGGLE EXPERIMENT AND MODEL NAME =====
+% note, one "exptype" and one "model" should be uncommented at a time
 
 % EXPERIMENT NAME
 % exptype = 'Mturk';  % experiment 1
@@ -303,17 +333,17 @@ clear all
 % % EXPERIMENT 1&2 MODELS (Fig 2, 4)
 % model = 'RL3WM_pers_0';             % RL learning rate
 % model = 'RLWM_CA_pers_0';           % RL credit assignment
-% model = 'RLWM_dn_pers_sub_0';       % RL decision noise
+% model = 'RLWM_dn_pers_sub_0';       % RL decision confusion
 % model = 'Decay3';                   % WM decay
-% model = 'RLWM_dnwm_pers_sub_0';     % WM decision noise
+% model = 'RLWM_dnwm_pers_sub_0';     % WM decision confusion
 % model = 'ns2_pers_0';               % RL-WM weight
 
 % % ADDITIONAL EXPERIMENT 2 MODELS (Fig 5(top))
 exptype = 'RPP';
 % model = 'RL3WMi_pers_0';            % RL learning rate with interaction
-% model = 'RLWMi_dn_pers_sub_0';      % RL decision noise with interaction
+% model = 'RLWMi_dn_pers_sub_0';      % RL decision confusion with interaction
 model = 'RL3WMi_all_pers_0';        % RL learning rate with interaction (fitted on learn+test data)
-% model = 'RLWMi_dn_all_pers_sub_0';  % RL decision noise with interaction (fitted on learn+test data)
+% model = 'RLWMi_dn_all_pers_sub_0';  % RL decision confusion with interaction (fitted on learn+test data)
 
 % % SUPPLEMENTARY MODELS (Fig 20)
 % exptype = 'Mturk';  % exp 1 only
@@ -532,13 +562,13 @@ nSubjs = nSubjs.(exptype);
 subjidVec = subjidVec.(exptype);
 nSims = 10;
 
-% EXPERIMENT 2 MODELS (in addition to those above)
-% model = 'RL3WM_all_pers_0';            % RL learning rate without interaction
-% model = 'RL3WMi_all_pers_0';        % RL learning rate with interaction (fitted on learn+test data)
-% model = 'RLWM_dn_all_pers_sub_0';
-% model = 'RLWMi_dn_all_pers_sub_0';  % RL decision noise with interaction (fitted on learn+test data)
-% model = 'RL3WMi_i_all_pers_0';
-model = 'RLWMi_dn_i_all_pers_sub_0';
+% EXPERIMENT 2 MODELS (fit on learn+test data)
+% model = 'RL3WM_all_pers_0';           % RL learning rate without interaction
+% model = 'RL3WMi_all_pers_0';          % RL learning rate with interaction
+% model = 'RL3WMi_i_all_pers_0';        % RL learning rate with condition-specific interaction
+% model = 'RLWM_dn_all_pers_sub_0';     % RL decision confusion without interaction
+% model = 'RLWMi_dn_all_pers_sub_0';    % RL decision confusion with interaction
+model = 'RLWMi_dn_i_all_pers_sub_0';    % RL decision confusion with condition-specific interaction
 
 % ----- load MLE parameters -----
 load(sprintf('fits/%s/fits_model_%s.mat',exptype,model))
@@ -849,9 +879,8 @@ clear all
 load('experimentalsettings.mat')
 nsimSubjs = 50;
 
-% names of models to plot
-modelVec = {'RL3WM3_pers_0'};
-% modelVec = {'RL3WM_pers_0','Decay3_pers_0','RLWM_dn_pers_sub_0','RLWM_CA_pers_0','RLWM_dnwm_pers_sub_0','ns2_pers_0','RL3WM3_pers_0','superfree_dnRLWM_pers_0'};
+% the model names below are in the same order as the figures in Supplement
+modelVec = {'RL3WM_pers_0','RLWM_CA_pers_0','RLWM_dn_pers_sub_0','Decay3_pers_0','RLWM_dnwm_pers_sub_0','ns2_pers_0','RL3WM3_pers_0','superfree_dnRLWM_pers_0'};
 nModels = length(modelVec);
 
 for imodel = 1:nModels
@@ -862,6 +891,7 @@ for imodel = 1:nModels
         load(sprintf('data/simdata/simdata_model_%s_subj%d.mat',model,isubj))
         realparams(isubj,:) = x;
     end
+
     
     % load fitted parameters
     load(sprintf('fits/modelrecovery/fitmodel_%s_simmodel_%s.mat',model,model))

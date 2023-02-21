@@ -2,8 +2,8 @@
 %                     BEHAVIORAL ANALYSES
 %  ================================================================
 % setup
-addpath('helper_functions')
-addpath('models')
+
+addpath(genpath(pwd))
 
 %% MAKE CSV FOR ANOVA (which is done in R)
 
